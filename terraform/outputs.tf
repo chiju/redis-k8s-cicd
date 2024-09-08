@@ -47,6 +47,6 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 output "kubeconfig" {
-  value = aws_eks_cluster.main.kubeconfig[0]
+  value = aws_eks_cluster.kubeconfig[0]
   sensitive = true
 }
