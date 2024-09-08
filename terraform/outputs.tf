@@ -46,7 +46,6 @@ data "aws_eks_cluster_auth" "cluster" {
   depends_on = [module.eks]  # Ensure the EKS module runs first
 }
 
-# Output the kubeconfig
 output "kubeconfig" {
   value = <<EOT
 apiVersion: v1
@@ -67,4 +66,6 @@ users:
   user:
     token: ${data.aws_eks_cluster_auth.cluster.token}
 EOT
+
+  sensitive = true  # Add this line
 }
