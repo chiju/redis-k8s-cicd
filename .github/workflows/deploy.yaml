@@ -59,6 +59,23 @@ jobs:
       AWS_REGION: us-west-2  # Define the AWS region here
 
     steps:
+
+      - name: Set variables in Step 1
+        id: step_one
+        run: |
+          MY_VAR="Hello, World!"
+          MY_OUTPUT="Some output"
+          echo "MY_VAR=$MY_VAR" >> $GITHUB_ENV
+          echo "::set-output name=my_output::$MY_OUTPUT"
+
+      - name: Access the variable using GITHUB_ENV in Step 2
+        run: |
+          echo "The value of MY_VAR is: $MY_VAR"
+
+      - name: Access the output from step_one in Step 3
+        run: |
+          echo "The value of my_output is: ${{ steps.step_one.outputs.my_output }}"
+
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
@@ -99,11 +116,11 @@ jobs:
       - name: Get EKS Cluster Name
         id: get_cluster_name
         working-directory: ./terraform
-        run: echo "EKS_CLUSTER_NAME=$(terraform output eks_cluster_name)"
+        run: echo "EKS_CLUSTER_NAME=$(terraform output eks_cluster_name)" >> $GITHUB_ENV
         shell: bash
 
       - name: update kubeconfig
-        run: aws eks update-kubeconfig --name my-eks-cluster --region ${{ env.AWS_REGION }}
+        run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region ${{ env.AWS_REGION }}
 
       # Install kubectl
       - name: Install kubectl
