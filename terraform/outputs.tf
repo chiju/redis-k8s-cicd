@@ -37,13 +37,13 @@ output "eks_node_group_name" {
 
 # Fetch the EKS cluster details
 data "aws_eks_cluster" "cluster" {
-  name       = aws_eks_cluster.main.name
-  depends_on = [aws_eks_cluster.main]  # Add this line to ensure the cluster is created first
+  name       = module.eks.cluster_name  # Use the module output here
+  depends_on = [module.eks]  # Ensure the EKS module runs first
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name       = aws_eks_cluster.main.name
-  depends_on = [aws_eks_cluster.main]  # Add this line as well
+  name       = module.eks.cluster_name  # Use the module output here
+  depends_on = [module.eks]  # Ensure the EKS module runs first
 }
 
 # Output the kubeconfig
