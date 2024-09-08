@@ -53,78 +53,78 @@ jobs:
       shell: /usr/bin/bash -e {0}
 
   deploy:
-  runs-on: ubuntu-latest
-  needs: setup-backend
-  env:
-    AWS_REGION: us-east-1  # Define the AWS region here
+    runs-on: ubuntu-latest
+    needs: setup-backend
+    env:
+      AWS_REGION: us-east-1  # Define the AWS region here
 
-  steps:
-    # Checkout the code
-    - name: Checkout code
-      uses: actions/checkout@v2
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # Set up AWS credentials for Terraform and EKS
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+      # Set up AWS credentials for Terraform and EKS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-    # Set up Terraform with the official Terraform GitHub Action (using version 1.9.5)
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.9.5
+      # Set up Terraform with the official Terraform GitHub Action (using version 1.9.5)
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.9.5
 
-    # Initialize Terraform
-    - name: Terraform Init
-      working-directory: ./terraform
-      run: terraform init
+      # Initialize Terraform
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
 
-    # Plan Terraform changes
-    - name: Terraform Plan
-      working-directory: ./terraform
-      run: terraform plan
+      # Plan Terraform changes
+      - name: Terraform Plan
+        working-directory: ./terraform
+        run: terraform plan
 
-    # Apply Terraform changes to provision infrastructure
-    - name: Terraform Apply
-      working-directory: ./terraform
-      run: terraform apply -auto-approve
+      # Apply Terraform changes to provision infrastructure
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve
 
-    # Get EKS cluster name from Terraform output
-    - name: Get EKS Cluster Name
-      id: get_eks_name
-      run: echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
+      # Get EKS cluster name from Terraform output
+      - name: Get EKS Cluster Name
+        id: get_eks_name
+        run: echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
 
-    # Update kubeconfig for EKS
-    - name: Update kubeconfig
-      run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+      # Update kubeconfig for EKS
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
-    # Install kubectl
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v1
-      with:
-        version: 'v1.30.3'
+      # Install kubectl
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'v1.30.3'
 
-    # Verify kubectl configuration
-    - name: Verify kubectl configuration
-      run: kubectl get nodes || echo "Failed to get nodes"
+      # Verify kubectl configuration
+      - name: Verify kubectl configuration
+        run: kubectl get nodes || echo "Failed to get nodes"
 
-    # Install Helm
-    - name: Install Helm
-      run: |
-        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+      # Install Helm
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-    # Deploy Redis using Helm (without overriding replica settings)
-    - name: Deploy Redis Cluster
-      run: |
-        helm upgrade --install redis ./helm/redis -f ./helm/redis/values.yaml
+      # Deploy Redis using Helm (without overriding replica settings)
+      - name: Deploy Redis Cluster
+        run: |
+          helm upgrade --install redis ./helm/redis -f ./helm/redis/values.yaml
 
-    # Ensure Redis is deployed successfully
-    - name: Check Redis Deployment
-      run: kubectl rollout status statefulset redis-master
+      # Ensure Redis is deployed successfully
+      - name: Check Redis Deployment
+        run: kubectl rollout status statefulset redis-master
 
-    # Optional: Monitor Redis deployment
-    - name: Verify Redis Pods
-      run: kubectl get pods -l app.kubernetes.io/name=redis
+      # Optional: Monitor Redis deployment
+      - name: Verify Redis Pods
+        run: kubectl get pods -l app.kubernetes.io/name=redis
