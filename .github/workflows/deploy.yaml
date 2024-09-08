@@ -109,6 +109,11 @@ jobs:
         mkdir -p ~/.kube
         cp kubeconfig.yaml ~/.kube/config
 
+    # cat kubeconfig
+    - name: Set up kubeconfig
+      run: |
+        cat ~/.kube/config    
+
     # Verify kubectl configuration
     - name: Verify kubectl configuration
       run: kubectl get nodes
