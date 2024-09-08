@@ -47,7 +47,7 @@ jobs:
     - name: Install kubectl
       uses: azure/setup-kubectl@v1
       with:
-        version: 'v1.21.0' # Match your EKS version
+        version: 'v1.30.3' # Match your EKS version
 
     # Set up kubectl config from GitHub Secrets
     - name: Set up kubeconfig
@@ -63,7 +63,7 @@ jobs:
     # Deploy Redis using Helm (without overriding replica settings)
     - name: Deploy Redis Cluster
       run: |
-        helm upgrade --install redis ./helm/redis
+        helm upgrade --install redis ./helm/redis -f ./helm/redis/values.yaml
 
     # Ensure Redis is deployed successfully
     - name: Check Redis Deployment
