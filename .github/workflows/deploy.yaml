@@ -1,0 +1,68 @@
+name: CI/CD for Infrastructure and Redis Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Set up AWS credentials for Terraform and EKS
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1 # Adjust as needed
+
+    # Install Terraform
+    - name: Install Terraform
+      run: |
+        sudo apt-get update && sudo apt-get install -y terraform
+
+    # Initialize Terraform
+    - name: Terraform Init
+      working-directory: ./terraform
+      run: terraform init
+
+    # Apply Terraform to provision infrastructure
+    - name: Terraform Apply
+      working-directory: ./terraform
+      run: terraform apply -auto-approve
+
+    # Install kubectl
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'v1.21.0' # Match your EKS version
+
+    # Set up kubectl config from GitHub Secrets
+    - name: Set up kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+    # Install Helm
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+    # Deploy Redis using Helm (without overriding replica settings)
+    - name: Deploy Redis Cluster
+      run: |
+        helm upgrade --install redis ./helm/redis
+
+    # Ensure Redis is deployed successfully
+    - name: Check Redis Deployment
+      run: kubectl rollout status statefulset redis-master
+
+    # Optional: Monitor Redis deployment
+    - name: Verify Redis Pods
+      run: kubectl get pods -l app=redis
