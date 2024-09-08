@@ -100,8 +100,10 @@ jobs:
         working-directory: ./terraform
         run: |
           EKS_CLUSTER_NAME=$(terraform output -json eks_cluster_name | jq -r '.value')
-          echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}"
-          aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${{ env.AWS_REGION }}
+          echo "$EKS_CLUSTER_NAME"
+
+      - name: update kubeconfig
+        run: aws eks update-kubeconfig --name my-eks-cluster --region ${{ env.AWS_REGION }}
 
       # Install kubectl
       - name: Install kubectl
