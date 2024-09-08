@@ -53,12 +53,12 @@ jobs:
       shell: /usr/bin/bash -e {0}
 
   deploy:
-    runs-on: ubuntu-latest
-    needs: setup-backend
-    env:
-      AWS_REGION: us-east-1  # Define the AWS region here, should match the region of your EKS cluster
+  runs-on: ubuntu-latest
+  needs: setup-backend
+  env:
+    AWS_REGION: us-east-1  # Define the AWS region here
 
-    steps:
+  steps:
     # Checkout the code
     - name: Checkout code
       uses: actions/checkout@v2
@@ -71,7 +71,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    # Set up Terraform with the official Terraform GitHub Action
+    # Set up Terraform with the official Terraform GitHub Action (using version 1.9.5)
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
@@ -92,30 +92,20 @@ jobs:
       working-directory: ./terraform
       run: terraform apply -auto-approve
 
-    # Capture the kubeconfig output
-    - name: Get kubeconfig
-      id: get_kubeconfig
-      run: terraform output -raw kubeconfig > kubeconfig.yaml
+    # Get EKS cluster name from Terraform output
+    - name: Get EKS Cluster Name
+      id: get_eks_name
+      run: echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
 
-    # Debug the kubeconfig
-    - name: Debug kubeconfig
-      run: cat kubeconfig.yaml
+    # Update kubeconfig for EKS
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
     # Install kubectl
     - name: Install kubectl
       uses: azure/setup-kubectl@v1
       with:
         version: 'v1.30.3'
-
-    # Set up kubeconfig
-    - name: Set up kubeconfig
-      run: |
-        mkdir -p ~/.kube
-        cp kubeconfig.yaml ~/.kube/config
-
-    # Debug kubeconfig location
-    - name: Verify kubeconfig
-      run: cat ~/.kube/config
 
     # Verify kubectl configuration
     - name: Verify kubectl configuration
@@ -126,7 +116,7 @@ jobs:
       run: |
         curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-    # Deploy Redis using Helm
+    # Deploy Redis using Helm (without overriding replica settings)
     - name: Deploy Redis Cluster
       run: |
         helm upgrade --install redis ./helm/redis -f ./helm/redis/values.yaml
