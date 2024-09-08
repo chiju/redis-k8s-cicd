@@ -5,6 +5,7 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+
 # VPC Module
 module "vpc" {
   source = "./modules/vpc"

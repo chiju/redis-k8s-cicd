@@ -47,6 +47,25 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 output "kubeconfig" {
-  value = aws_eks_cluster.kubeconfig[0]
+  value = <<-EOT
+  apiVersion: v1
+  clusters:
+  - cluster:
+      certificate-authority-data: ${data.aws_eks_cluster.cluster.certificate_authority[0].data}
+      server: ${data.aws_eks_cluster.cluster.endpoint}
+    name: ${data.aws_eks_cluster.cluster.name}
+  contexts:
+  - context:
+      cluster: ${data.aws_eks_cluster.cluster.name}
+      user: aws
+    name: ${data.aws_eks_cluster.cluster.name}
+  current-context: ${data.aws_eks_cluster.cluster.name}
+  kind: Config
+  preferences: {}
+  users:
+  - name: aws
+    user:
+      token: ${data.aws_eks_cluster_auth.cluster.token}
+  EOT
   sensitive = true
 }
