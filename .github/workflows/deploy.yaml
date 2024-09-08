@@ -71,4 +71,4 @@ jobs:
 
     # Optional: Monitor Redis deployment
     - name: Verify Redis Pods
-      run: kubectl get pods -l app=redis
+      run: kubectl get pods -l app.kubernetes.io/name=redis
