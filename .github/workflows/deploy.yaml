@@ -94,6 +94,7 @@ jobs:
 
       # Get EKS cluster name from Terraform output and use it immediately
       - name: Update kubeconfig
+        working-directory: ./terraform
         run: |
           EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
           echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}"
