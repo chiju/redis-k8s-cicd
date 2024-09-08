@@ -116,8 +116,7 @@ jobs:
       - name: Get EKS Cluster Name
         id: get_cluster_name
         working-directory: ./terraform
-        run: echo "EKS_CLUSTER_NAME=$(terraform output eks_cluster_name 2>/dev/null | tr -d '\n' | tr -d '\r' | tr -d ' ')" >> $GITHUB_ENV
-        shell: bash
+        run: echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
 
       - name: update kubeconfig
         run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
