@@ -1,0 +1,40 @@
+# redis-values.yaml
+
+## Enable Redis cluster mode
+cluster:
+  enabled: true
+  slaveCount: 1  # Number of slave nodes per master node for high availability
+
+## Redis resources
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "50m"
+  limits:
+    memory: "256Mi"
+    cpu: "100m"
+
+## Persistence settings
+persistence:
+  enabled: true
+  storageClass: "gp2"  # Replace with your preferred storage class
+  size: 8Gi  # Adjust size based on your requirements
+
+## Node Affinity and Anti-Affinity to ensure pods are distributed across nodes
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: "app.kubernetes.io/name"
+            operator: In
+            values:
+            - redis
+        topologyKey: "kubernetes.io/hostname"
+
+## Service type and settings
+service:
+  type: ClusterIP  # Keep it internal for the Kubernetes cluster
+  port: 6379
