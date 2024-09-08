@@ -92,17 +92,26 @@ jobs:
       working-directory: ./terraform
       run: terraform apply -auto-approve
 
+    # Capture the kubeconfig output
+    - name: Get kubeconfig
+      id: get_kubeconfig
+      run: echo "${{ steps.terraform.outputs.kubeconfig }}" > kubeconfig.yaml
+
     # Install kubectl
     - name: Install kubectl
       uses: azure/setup-kubectl@v1
       with:
-        version: 'v1.30.3' # Match your EKS version
+        version: 'v1.30.3'
 
-    # Set up kubectl config from GitHub Secrets
+    # Set up kubeconfig
     - name: Set up kubeconfig
       run: |
         mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+        cp kubeconfig.yaml ~/.kube/config
+
+    # Verify kubectl configuration
+    - name: Verify kubectl configuration
+      run: kubectl get nodes
 
     # Install Helm
     - name: Install Helm
