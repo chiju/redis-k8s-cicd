@@ -96,7 +96,7 @@ jobs:
       - name: Update kubeconfig
         working-directory: ./terraform
         run: |
-          EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          EKS_CLUSTER_NAME=$(terraform output  eks_cluster_name)
           echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}"
           aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${{ env.AWS_REGION }}
 
