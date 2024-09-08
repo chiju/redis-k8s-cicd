@@ -96,12 +96,6 @@ jobs:
         working-directory: ./terraform
         run: terraform output
 
-      - name: Get EKS Cluster Name
-        working-directory: ./terraform
-        run: |
-          EKS_CLUSTER_NAME=$(terraform output -json eks_cluster_name | jq -r '.value')
-          echo "$EKS_CLUSTER_NAME"
-
       - name: update kubeconfig
         run: aws eks update-kubeconfig --name my-eks-cluster --region ${{ env.AWS_REGION }}
 
