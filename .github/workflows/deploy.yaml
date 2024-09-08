@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup-backend
     env:
-      AWS_REGION: us-east-1  # Define the AWS region here
+      AWS_REGION: us-west-1  # Define the AWS region here
 
     steps:
       # Checkout the code
@@ -95,6 +95,13 @@ jobs:
       - name: Print Terraform Outputs
         working-directory: ./terraform
         run: terraform output
+
+      - name: Get EKS Cluster Name
+        id: get_cluster_name
+        run: |
+          EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}" >> $GITHUB_OUTPUT
 
       - name: update kubeconfig
         run: aws eks update-kubeconfig --name my-eks-cluster --region ${{ env.AWS_REGION }}
