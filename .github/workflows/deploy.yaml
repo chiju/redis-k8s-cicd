@@ -31,7 +31,7 @@ jobs:
     - name: Create Backend Resources
       run: |
         # Set the bucket name
-        BUCKET_NAME="unzer_test-terraform-state-bucket"
+        BUCKET_NAME="unzer-test-terraform-state-bucket"
 
         # Create S3 Bucket if it doesn't exist
         if ! aws s3api head-bucket --bucket $BUCKET_NAME --region ${{ env.AWS_REGION }} 2>/dev/null; then
