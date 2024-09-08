@@ -116,7 +116,19 @@ jobs:
       - name: Get EKS Cluster Name
         id: get_cluster_name
         working-directory: ./terraform
-        run: echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
+        run: |
+          # Capture the raw Terraform output in a temporary file
+          terraform output -raw eks_cluster_name > temp_output.txt
+          
+          # Read the output, strip unwanted characters like newlines
+          EKS_CLUSTER_NAME=$(cat temp_output.txt | tr -d '\n' | tr -d '\r')
+          
+          # Write the cleaned output to the environment file
+          echo "EKS_CLUSTER_NAME=$EKS_CLUSTER_NAME" >> $GITHUB_ENV
+          
+          # Clean up the temporary file
+          rm temp_output.txt
+        shell: bash
 
       - name: update kubeconfig
         run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
