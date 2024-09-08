@@ -91,6 +91,12 @@ jobs:
       - name: Terraform Apply
         working-directory: ./terraform
         run: terraform apply -auto-approve
+      
+      - name: Update
+        working-directory: ./terraform
+        run: |
+          EKS_CLUSTER_NAME=$(terraform output  eks_cluster_name)
+          echo "EKS_CLUSTER_NAME"
 
       # Get EKS cluster name from Terraform output and use it immediately
       - name: Update kubeconfig
