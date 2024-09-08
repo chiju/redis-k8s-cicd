@@ -95,16 +95,16 @@ jobs:
       - name: Update
         working-directory: ./terraform
         run: |
-          EKS_CLUSTER_NAME=$(terraform output  eks_cluster_name)
-          echo "EKS_CLUSTER_NAME"
+          EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          echo "$EKS_CLUSTER_NAME"
 
       # Get EKS cluster name from Terraform output and use it immediately
       - name: Update kubeconfig
         working-directory: ./terraform
         run: |
-          EKS_CLUSTER_NAME=$(terraform output  eks_cluster_name)
-          echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}"
-          aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${{ env.AWS_REGION }}
+          EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          echo "$EKS_CLUSTER_NAME"
+          aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region ${{ env.AWS_REGION }}
 
       # Install kubectl
       - name: Install kubectl
