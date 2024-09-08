@@ -5,24 +5,6 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# Backend Module (for S3 bucket and DynamoDB)
-module "backend" {
-  source              = "./modules/backend"
-  s3_bucket_name      = "your-terraform-state-bucket"
-  dynamodb_table_name = "terraform-lock-table"
-}
-
-# Configure the S3 backend for Terraform state and locking
-terraform {
-  backend "s3" {
-    bucket         = module.backend.s3_bucket_name
-    key            = "terraform/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = module.backend.dynamodb_table_name
-    encrypt        = true
-  }
-}
-
 # VPC Module
 module "vpc" {
   source = "./modules/vpc"
