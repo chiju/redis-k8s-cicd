@@ -120,7 +120,7 @@ jobs:
         shell: bash
 
       - name: update kubeconfig
-        run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region ${{ env.AWS_REGION }}
+        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
       # Install kubectl
       - name: Install kubectl
