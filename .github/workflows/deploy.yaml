@@ -92,18 +92,12 @@ jobs:
         working-directory: ./terraform
         run: terraform apply -auto-approve
 
-      # Get EKS cluster name from Terraform output
-      - name: Get EKS Cluster Name
-        id: get_eks_name
-        run: echo "EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)" >> $GITHUB_ENV
-
-      # Print EKS Cluster Name for debugging
-      - name: Print EKS Cluster Name
-        run: echo "EKS_CLUSTER_NAME=${{ env.EKS_CLUSTER_NAME }}"
-
-      # Update kubeconfig for EKS
+      # Get EKS cluster name from Terraform output and use it immediately
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+        run: |
+          EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          echo "EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}"
+          aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region ${{ env.AWS_REGION }}
 
       # Install kubectl
       - name: Install kubectl
