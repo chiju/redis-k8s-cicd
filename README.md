@@ -51,13 +51,33 @@ This project automates the deployment of a scalable and resilient Redis cluster 
 
 ## CI/CD Pipeline
 
-### Objective:
-- Automate the deployment and management of the Redis cluster, ensuring zero-downtime updates.
+## CI/CD Pipeline (GitHub Actions)
 
-### Pipeline Workflow:
-1. Code changes are committed to a Git repository.
-2. Helm is used to apply changes to the Kubernetes cluster with `helm upgrade`.
-3. The pipeline ensures rolling updates to Redis without causing any service interruptions.
+The project uses GitHub Actions to automate the deployment process. The main workflow is stored in `.github/workflows/deploy.yaml`.
+
+### Workflow Details:
+
+- **File:** `.github/workflows/deploy.yaml`
+- **Trigger:** The pipeline runs automatically when code is pushed to the `main` branch.
+
+### Key Steps:
+
+1. **AWS Setup:**
+    - Set AWS credentials using secrets stored in the repository (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`).
+    - Create or verify the S3 bucket and DynamoDB table for the Terraform backend.
+
+2. **Terraform Initialization and Application:**
+    - Initialize Terraform.
+    - Plan and apply the infrastructure using Terraform (`terraform apply`).
+
+3. **Kubernetes Configuration:**
+    - Update the `kubeconfig` to interact with the EKS cluster.
+    - Verify the cluster nodes using `kubectl`.
+
+4. **Redis Deployment with Helm:**
+    - Install Helm.
+    - Deploy Redis to the Kubernetes cluster using the Helm chart (`helm upgrade --install redis`).
+
 
 ### Zero-Downtime Features:
 - Helm’s rolling update strategy and StatefulSet updates help maintain service availability.
