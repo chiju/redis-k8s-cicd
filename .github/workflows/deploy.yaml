@@ -22,17 +22,23 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1 # Adjust as needed
 
-    # Install Terraform
-    - name: Install Terraform
-      run: |
-        sudo apt-get update && sudo apt-get install -y terraform
+    # Set up Terraform with the official Terraform GitHub Action (using version 1.9.5)
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.9.5
 
     # Initialize Terraform
     - name: Terraform Init
       working-directory: ./terraform
       run: terraform init
 
-    # Apply Terraform to provision infrastructure
+    # Plan Terraform changes
+    - name: Terraform Plan
+      working-directory: ./terraform
+      run: terraform plan
+
+    # Apply Terraform changes to provision infrastructure
     - name: Terraform Apply
       working-directory: ./terraform
       run: terraform apply -auto-approve
