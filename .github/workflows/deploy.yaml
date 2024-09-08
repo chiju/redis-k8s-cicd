@@ -99,7 +99,7 @@ jobs:
       - name: Get EKS Cluster Name
         id: get_cluster_name
         run: |
-          EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          EKS_CLUSTER_NAME=$(terraform output eks_cluster_name)
           echo "EKS_CLUSTER_NAME=$EKS_CLUSTER_NAME" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=$EKS_CLUSTER_NAME" >> $GITHUB_OUTPUT
         shell: bash
