@@ -23,7 +23,7 @@ This project automates the deployment of a scalable and resilient Redis cluster 
 - `modules/iam`: Manages access control and roles.
 
 ### Setup Process:
-1. **Backend Configuration (`backend.tf`):** Defines the storage for Terraform state (e.g., S3, Azure Blob).
+1. **Backend Configuration (`backend.tf`):** Defines the storage for Terraform state (e.g., S3).
 2. **Infrastructure Components:**
    - The Kubernetes cluster is provisioned with the necessary compute and networking infrastructure.
    - IAM roles and policies ensure secure access to cluster resources.
